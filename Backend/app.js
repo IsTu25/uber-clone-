@@ -1,16 +1,22 @@
 const dotenv = require('dotenv');
 dotenv.config();
-const cors=require('cors');
-const express=require('express');
+
+const cors = require('cors');
+const express = require('express');
 const app = express();
 const connectToDb = require('./db/db');
-connectToDb(process.env.MONGO_URI); 
+const userRoutes = require('./routes/user.routes');
+
+connectToDb(process.env.MONGO_URI);
+
 app.use(cors());
-app.get('/',(req,res) =>{
-    app.send('hello world');
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.get('/', (req, res) => {
+  res.send('hello world');
 });
 
+app.use('/users', userRoutes);
+
 module.exports = app;
-
-
-

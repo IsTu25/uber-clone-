@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 function connectToDb(uri) {
-    mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
+    mongoose.connect(uri)
         .then(() => {
             console.log('Connected to MongoDB successfully');
         })
