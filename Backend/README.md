@@ -195,3 +195,102 @@ Common HTTP Status Codes:
 - [JWT Documentation](https://jwt.io/)
 - [HTTP Status Codes](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status)
 - [REST API Best Practices](https://restfulapi.net/)
+
+# 🚘 Captain Endpoints
+
+### 1. Register New Captain (`/captain/register`)
+
+Register a new captain account with vehicle details.
+
+#### 📝 Request Details
+- **Method**: POST
+- **URL**: `/captain/register`
+- **Content-Type**: application/json
+
+#### Request Body
+```json
+{
+  "email": "captain@example.com",
+  "fullname": {
+    "firstname": "John",
+    "lastname": "Doe"
+  },
+  "password": "secret123",
+  "vehicle": {
+    "color": "Black",
+    "plate": "ABC-123",
+    "capacity": 4,
+    "vehicleType": "Car"
+  }
+}
+```
+
+#### Validation Rules
+| Field | Rules |
+|-------|--------|
+| email | Must be valid email format |
+| firstname | Minimum 3 characters |
+| lastname | Minimum 3 characters |
+| password | Minimum 6 characters |
+| vehicle.color | Minimum 3 characters |
+| vehicle.plate | Minimum 3 characters |
+| vehicle.capacity | Minimum 1 |
+| vehicle.vehicleType | Must be one of: "Car", "Motorcycle", "Auto" |
+
+#### 📤 Response Examples
+
+**Success (201 Created)**
+```json
+{
+  "message": "Captain registered successfully",
+  "token": "eyJhbGciOiJIUzI1NiIs...",
+  "captain": {
+    "id": "12345",
+    "email": "captain@example.com",
+    "fullname": {
+      "firstname": "John",
+      "lastname": "Doe"
+    },
+    "vehicle": {
+      "color": "Black",
+      "plate": "ABC-123",
+      "capacity": 4,
+      "vehicleType": "Car"
+    },
+    "status": "active"
+  }
+}
+```
+
+**Validation Error (400 Bad Request)**
+```json
+{
+  "errors": [
+    {
+      "field": "vehicle.capacity",
+      "message": "Capacity must be at least 1"
+    }
+  ]
+}
+```
+
+**Captain Already Exists (400 Bad Request)**
+```json
+{
+  "message": "Captain Already Exists"
+}
+```
+
+#### 🔒 Important Notes
+- Vehicle type must be one of the predefined types
+- Each captain can only register one vehicle
+- Email must be unique across the platform
+- Status is automatically set to "active" upon registration
+- Plate numbers should be unique (recommended to add validation)
+
+## 💻 Error Handling for Captain Routes
+
+Captain-specific error codes:
+- **400**: Invalid vehicle details
+- **409**: Duplicate plate number
+- **422**: Invalid vehicle type
