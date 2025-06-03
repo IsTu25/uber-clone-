@@ -23,7 +23,7 @@ const captainSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
-    select: false,
+    select: false,  // Important: password is excluded by default
   },
   vehicle: {
     color: {
@@ -54,14 +54,17 @@ const captainSchema = new mongoose.Schema({
   },
 }, { timestamps: true });
 
+// Instance method: generate JWT token
 captainSchema.methods.generateAuthToken = function () {
   return jwt.sign({ _id: this._id }, process.env.JWT_SECRET, { expiresIn: '24h' });
 };
 
+// Instance method: compare password
 captainSchema.methods.comparePassword = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
 
+// Static method: hash password
 captainSchema.statics.hashPassword = async function (password) {
   return await bcrypt.hash(password, 10);
 };

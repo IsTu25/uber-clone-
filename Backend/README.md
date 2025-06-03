@@ -198,51 +198,80 @@ Common HTTP Status Codes:
 
 # 🚘 Captain Endpoints
 
-### 1. Register New Captain (`/captain/register`)
-
-Register a new captain account with vehicle details.
-
-#### 📝 Request Details
-- **Method**: POST
-- **URL**: `/captain/register`
-- **Content-Type**: application/json
+## 1. Register Captain (`/captain/register`)
 
 #### Request Body
 ```json
 {
+  // Email must be unique and valid format
   "email": "captain@example.com",
+  
+  // Both firstname and lastname required, min 3 chars
   "fullname": {
     "firstname": "John",
     "lastname": "Doe"
   },
+  
+  // Min 6 characters
   "password": "secret123",
+  
+  // All vehicle fields are required
   "vehicle": {
+    // Min 3 characters
     "color": "Black",
+    
+    // Must be unique, min 3 characters
     "plate": "ABC-123",
+    
+    // Must be >= 1
     "capacity": 4,
+    
+    // Must be one of: "Car", "Motorcycle", "Auto"
     "vehicleType": "Car"
   }
 }
 ```
 
-#### Validation Rules
-| Field | Rules |
-|-------|--------|
-| email | Must be valid email format |
-| firstname | Minimum 3 characters |
-| lastname | Minimum 3 characters |
-| password | Minimum 6 characters |
-| vehicle.color | Minimum 3 characters |
-| vehicle.plate | Minimum 3 characters |
-| vehicle.capacity | Minimum 1 |
-| vehicle.vehicleType | Must be one of: "Car", "Motorcycle", "Auto" |
-
-#### 📤 Response Examples
-
-**Success (201 Created)**
+#### Success Response (201 Created)
 ```json
 {
   "message": "Captain registered successfully",
+  "token": "eyJhbGciOiJIUzI1NiIs...",
+  "captain": {
+    "id": "12345",
+    "email": "captain@example.com",
+    "fullname": {
+      "firstname": "John",
+      "lastname": "Doe"
+    },
+    "vehicle": {
+      "color": "Black",
+      "plate": "ABC-123",
+      "capacity": 4,
+      "vehicleType": "Car"
+    },
+    // Automatically set to "active" on registration
+    "status": "active"
+  }
+}
+```
+
+## 2. Login Captain (`/captain/login`)
+
+#### Request Body
+```json
+{
+  // Must be registered email
+  "email": "captain@example.com",
+  // Min 6 characters
+  "password": "secret123"
+}
+```
+
+#### Success Response (200 OK)
+```json
+{
+  "message": "Login successful",
   "token": "eyJhbGciOiJIUzI1NiIs...",
   "captain": {
     "id": "12345",
@@ -262,7 +291,69 @@ Register a new captain account with vehicle details.
 }
 ```
 
-**Validation Error (400 Bad Request)**
+## 3. Get Captain Profile (`/captain/profile`)
+
+#### Authentication
+```javascript
+// Required: JWT token in either
+headers: {
+  "Authorization": "Bearer eyJhbGciOiJIUzI1NiIs..."
+}
+// or
+cookies: {
+  "token": "eyJhbGciOiJIUzI1NiIs..."
+}
+```
+
+#### Success Response (200 OK)
+```json
+{
+  "captain": {
+    "id": "12345",
+    "firstname": "John",
+    "lastname": "Doe",
+    "email": "captain@example.com",
+    "vehicle": {
+      "color": "Black",
+      "plate": "ABC-123",
+      "capacity": 4,
+      "vehicleType": "Car"
+    }
+  }
+}
+```
+
+## 4. Logout Captain (`/captain/logout`)
+
+#### Authentication
+```javascript
+// Same authentication requirements as profile endpoint
+```
+
+#### Success Response (200 OK)
+```json
+{
+  "message": "Captain logged out successfully"
+}
+```
+
+#### Error Response (400 Bad Request)
+```json
+{
+  "message": "No token provided"
+}
+```
+
+## Common Error Responses
+
+#### Invalid Credentials (400 Bad Request)
+```json
+{
+  "message": "Invalid email or password"
+}
+```
+
+#### Validation Error (400 Bad Request)
 ```json
 {
   "errors": [
@@ -274,23 +365,16 @@ Register a new captain account with vehicle details.
 }
 ```
 
-**Captain Already Exists (400 Bad Request)**
+#### Authentication Error (401 Unauthorized)
 ```json
 {
-  "message": "Captain Already Exists"
+  "message": "Unauthorized"
 }
 ```
 
-#### 🔒 Important Notes
-- Vehicle type must be one of the predefined types
-- Each captain can only register one vehicle
-- Email must be unique across the platform
-- Status is automatically set to "active" upon registration
-- Plate numbers should be unique (recommended to add validation)
-
-## 💻 Error Handling for Captain Routes
-
-Captain-specific error codes:
-- **400**: Invalid vehicle details
-- **409**: Duplicate plate number
-- **422**: Invalid vehicle type
+#### Server Error (500 Internal Server Error)
+```json
+{
+  "error": "Server error message"
+}
+```
